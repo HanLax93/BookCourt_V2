@@ -169,7 +169,7 @@ class Ui_MainWindow(object):
         sizePolicy.setHeightForWidth(self.lineEdit_newname.sizePolicy().hasHeightForWidth())
         self.lineEdit_newname.setSizePolicy(sizePolicy)
         font = QtGui.QFont()
-        font.setFamily(QtGui.QFont(JetbrainsEB))
+        font.setFamily("JetBrainsMonoMedium Nerd Font Mono")
         font.setBold(True)
         font.setWeight(75)
         self.lineEdit_newname.setStyleSheet(qssStyle)
