@@ -1,53 +1,65 @@
-import argparse
 from application import modules, utils
-import yaml
-
-
-def getPars():  # provide a entrance for custom timing time test
-    myParser = argparse.ArgumentParser(description='timeSetting')
-    myParser.add_argument('-hr', '--hour', type=int, default=12, help='setup hour part')
-    myParser.add_argument('-m', '--min', type=int, default=0, help='setup minute part')
-    myParser.add_argument('-s', '--sec', type=int, default=0, help='setup second part')
-    myParser.add_argument('-d', '--delay', type=int, default=300, help='setup microsecond part')
-    a = myParser.parse_args()
-
-    t_h = a.hour
-    t_m = a.min
-    t_s = a.sec
-    t_d = 1 - a.delay/1000
-    t = [t_h, t_m, t_s, t_d]
-    return t
-
-
-def getConfig():
-    file = open("./config/config.yaml", 'r', encoding="utf-8")
-    data = yaml.load(file, Loader=yaml.FullLoader)
-    file.close()
-    return data
+import datetime as dt
 
 
 class App:
-    def __init__(self, config):
+    def __init__(self, config: list):
+        self.queryList = {
+            "stadiumList":{
+                "Badminton Court 1": "5",
+                "Badminton Court 2": "6",
+                "Badminton Court 3": "7",
+                "Badminton Court 4": "8",
+                "Badminton Court 5": "13",
+                "Badminton Court 6": "14"
+            },
+            "periodList":{
+                "15:30 - 16:00":  "21",
+                "15:00 - 16:00":  "22",
+                "16:00 - 17:00": "2",
+                "17:00 - 18:00": "3",
+                "18:00 - 19:00": "4",
+                "19:00 - 20:00": "5",
+                "20:00 - 21:00": "6"
+            }
+        }
         self.config = config
+        self.info = ""
+        self.info2 = ""
+        h = int(self.config[3][0])
+        m = int(self.config[3][1])
+        s = int(self.config[3][2])
+        ms = int(self.config[3][3])
+        try:
+            assert (0 <= h < 24) & (0 <= m < 60) & (0 <= s < 60) & (0 <= ms < 1000)
+        except AssertionError:
+            self.info = "时间设置错误"
+        else:
+            self.info2 = "0"
 
     def main(self):
+        if self.info2 != "":
+            stadiumList = ["Badminton Court 1", "Badminton Court 2", 
+                                "Badminton Court 3", "Badminton Court 4", 
+                                "Badminton Court 5", "Badminton Court 6"]
+            periodList = ["15:30 - 16:00", "16:00 - 17:00", "17:00 - 18:00", 
+                                "18:00 - 19:00", "19:00 - 20:00", "20:00 - 21:00"]
+            weekend = ["Saturday", "Sunday"]
+            if dt.datetime.now().strftime("%A") in weekend:
+                periodList[0] = "15:00 - 16:00"
+            token = self.config[0]
+            court = self.queryList["stadiumList"][stadiumList[self.config[1]]]
+            courtTime = self.queryList["periodList"][periodList[self.config[2]]]
+            bookInfo = [courtTime, court]
 
-        token = self.config['topToken']
-        courtTime, court = self.config['topCourtTime'], self.config['topCourt']
-        bookInfo = [courtTime, court]
-
-        t = self.config['time']
-        testTime = modules.ConfigureTime(t)
-        testTime.getTimeDelay()
-        if testTime.getLocalInterval() < 0:
-            info = "时间设置错误。"
-            info2 = "False"
-        else:
-            f = modules.Features(token, self.config)  # put your token here
-            _, ver, _ = f.getPriLogs()
-            if ver is not None:
-                info, info2 = f.bookCourt(bookInfo)  # put your book info here
+            t = self.config[4]
+            testTime = modules.ConfigureTime(t)
+            testTime.getTimeDelay()
+            if testTime.getLocalInterval() < 0:
+                self.info = "时间设置错误"
+                self.info2 = ""
             else:
-                info, info2 = "Invalid token.", ""
-        utils.log(info + '\n' + info2)
-        return info, info2
+                f = modules.Features(token, t)
+                self.info, self.info2 = f.bookCourt(bookInfo)
+        utils.log(self.info + '\n' + self.info2)
+        return self.info, self.info2

@@ -13,9 +13,6 @@ import ui.myQrc
 
 
 class Ui_dialog(object):
-    def __init__(self, memo):
-        self.memo = memo
-
     def setupUi(self, dialog):
         dialog.setObjectName("dialog")
         dialog.resize(609, 330)
@@ -60,5 +57,4 @@ class Ui_dialog(object):
         _translate = QtCore.QCoreApplication.translate
         dialog.setWindowTitle(_translate("dialog", "登录"))
         self.btn_login.setText(_translate("dialog", "Sign in"))
-        self.lineEdit_username.setPlaceholderText(_translate("dialog", self.memo['topToken']))
         self.label_2.setText(_translate("dialog", "Login now"))

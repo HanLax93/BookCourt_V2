@@ -1,6 +1,6 @@
 import base64
 import datetime
-
+import os
 from Crypto.Cipher import AES
 from cryptography.hazmat.primitives import padding
 from cryptography.hazmat.primitives.ciphers import algorithms
@@ -15,6 +15,8 @@ def get_input(ui):
 def log(logmsg: str):
     today = datetime.datetime.now().strftime("%Y-%m-%d")
     filename = "logs/" + today + ".log"
+    if not os.path.exists("logs"):
+        os.mkdir("logs")
     with open(filename, 'a') as f:
         logtime = datetime.datetime.strftime(datetime.datetime.now(), '%Y-%m-%d %H:%M:%S',)
         f.write(logtime + ' ' + logmsg + '\n\n')

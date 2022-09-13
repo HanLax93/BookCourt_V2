@@ -2,3 +2,5 @@
 ui/__pycache__
 application/__pycache__
 ui/__pycache__
+.vscode
+logs

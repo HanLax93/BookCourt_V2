@@ -1,8 +1,0 @@
-timing:
-- '12'
-- '00'
-- '00'
-- '20'
-topCourt: Badminton Court 1
-topCourtTime: 15:x0 - 16:00
-topToken: 'Please enter your token.'

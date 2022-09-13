@@ -13,9 +13,6 @@ import ui.myQrc
 
 
 class Ui_MainWindow(object):
-    def __init__(self, memo):
-        self.memo = memo
-
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
         MainWindow.resize(674, 525)
@@ -30,6 +27,9 @@ class Ui_MainWindow(object):
         MainWindow.setFont(font)
         MainWindow.setStyleSheet("background-color: rgb(255, 255, 255);")
         MainWindow.setDockOptions(QtWidgets.QMainWindow.AllowTabbedDocks|QtWidgets.QMainWindow.AnimatedDocks)
+        icon = QtGui.QIcon()
+        icon.addPixmap(QtGui.QPixmap(":/src/icon.png"), QtGui.QIcon.Normal, QtGui.QIcon.On)
+        MainWindow.setWindowIcon(icon)
 
         qssStyle = '''
            QCheckBox, QComboBox, QSpinBox ,QLineEdit {
@@ -169,7 +169,7 @@ class Ui_MainWindow(object):
         sizePolicy.setHeightForWidth(self.lineEdit_newname.sizePolicy().hasHeightForWidth())
         self.lineEdit_newname.setSizePolicy(sizePolicy)
         font = QtGui.QFont()
-        font.setFamily("JetBrainsMonoExtraBold Nerd Font Mono")
+        font.setFamily(QtGui.QFont(JetbrainsEB))
         font.setBold(True)
         font.setWeight(75)
         self.lineEdit_newname.setStyleSheet(qssStyle)
@@ -230,8 +230,9 @@ class Ui_MainWindow(object):
         self.verticalLayout.setObjectName("verticalLayout")
         self.label_9 = QtWidgets.QLabel(self.verticalLayoutWidget)
         font = QtGui.QFont()
-        font.setFamily("JetBrainsMonoExtraBold Nerd Font Mono")
+        font.setFamily("Microsoft YaHei UI")
         font.setBold(True)
+        font.setItalic(True)
         font.setWeight(75)
         self.label_9.setFont(font)
         self.label_9.setAlignment(QtCore.Qt.AlignLeading | QtCore.Qt.AlignLeft | QtCore.Qt.AlignTop)
@@ -245,21 +246,13 @@ class Ui_MainWindow(object):
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
         MainWindow.setWindowTitle(_translate("MainWindow", "预约小工具"))
-        self.label_3.setText(_translate("MainWindow", "Welcome here！"))
+        self.label_3.setText(_translate("MainWindow", "Welcome here!"))
         self.label_2.setText(_translate("MainWindow", "Hello"))
         self.label_4.setText(_translate("MainWindow", "Court:"))
         self.label_5.setText(_translate("MainWindow", "Time:"))
         self.label_6.setText(_translate("MainWindow", "Post Time:"))
-        self.lineEdit_newname_2.setPlaceholderText(_translate("MainWindow", "12"))
-        self.lineEdit_newname.setPlaceholderText(_translate("MainWindow", "00"))
-        self.lineEdit_newname_3.setPlaceholderText(_translate("MainWindow", "00"))
-        self.lineEdit_newname_4.setPlaceholderText(_translate("MainWindow", "20"))
         self.label_7.setText(_translate("MainWindow", ":"))
         self.label_8.setText(_translate("MainWindow", ":"))
         self.btn_sureadd.setText(_translate("MainWindow", "Sure"))
-
-        timing = self.memo['timing']
-        self.lineEdit_newname_2.setPlaceholderText(_translate("MainWindow", timing[0]))
-        self.lineEdit_newname.setPlaceholderText(_translate("MainWindow", timing[1]))
-        self.lineEdit_newname_3.setPlaceholderText(_translate("MainWindow", timing[2]))
-        self.lineEdit_newname_4.setPlaceholderText(_translate("MainWindow", timing[3]))
+        self.comboBox_2.addItems(["Badminton Court 1", "Badminton Court 2", "Badminton Court 3", "Badminton Court 4", "Badminton Court 5", "Badminton Court 6"])
+        self.comboBox.addItems(["15:x0 - 16:00", "16:00 - 17:00", "17:00 - 18:00", "18:00 - 19:00", "19:00 - 20:00", "20:00 - 21:00"])

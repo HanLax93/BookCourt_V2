@@ -16,49 +16,63 @@ def resolveInfo(params):
 
 
 class Features:
-    def __init__(self, myToken, config):  # init with host and token
-
+    def __init__(self, myToken, config=None):  # init with host and token
+        queryList = {
+            "stadiumList":{
+                "Badminton Court 1": "5",
+                "Badminton Court 2": "6",
+                "Badminton Court 3": "7",
+                "Badminton Court 4": "8",
+                "Badminton Court 5": "13",
+                "Badminton Court 6": "14"
+            },
+            "periodList":{
+                "15:30 - 16:00":  "21",
+                "15:00 - 16:00":  "22",
+                "16:00 - 17:00": "2",
+                "17:00 - 18:00": "3",
+                "18:00 - 19:00": "4",
+                "19:00 - 20:00": "5",
+                "20:00 - 21:00": "6"
+            }
+        }
+        self.stadiumIdList = queryList["stadiumList"]
+        self.periodIdList = queryList["periodList"]
         self.token = myToken
-        self.config = config
-        self.host = 'https://tyb.qingyou.ren'
-        self.headers = config['basicHeaders']
-        self.periodIdList = config['periodIdList']
-        self.stadiumIdList = config['stadiumIdList']
-        try:
-            self.time = self.config['time']
-        except KeyError:
-            pass
+        self.headers = {
+            "Host": "tyb.qingyou.ren",
+            "User-Agent": "Mozilla/5.0 (Linux; Android 5.1.1; SM-G977N Build/LMY48Z; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/74.0.3729.136 Mobile Safari/537.36 MMWEBID/4347 MicroMessenger/8.0.22.2140(0x280016F7) WeChat/arm32 Weixin NetType/WIFI Language/zh_CN ABI/arm32 MiniProgramEnv/android",
+            "Charset": "utf-8",
+            "Accept-Encoding": "gzip, deflate"}
+        self.host = "https://tyb.qingyou.ren"
+        if config is not None:
+            self.time = config
 
-    def cancelCourt(self):  # you can try to cancel the booking with this function
-        data, _, _ = self.getPriLogs()
-        stadiumId = data['data'][0]['id']  # the id of the latest court booking
-        params = {"logId": str(stadiumId)}  # request params
-        params = json.dumps(params)
+    # def cancelCourt(self):  # you can try to cancel the booking with this function
+    #     data, _, _ = self.getPriLogs()
+    #     stadiumId = data['data'][0]['id']  # the id of the latest court booking
+    #     params = {"logId": str(stadiumId)}  # request params
+    #     params = json.dumps(params)
 
-        url = self.host + "/user/cancel"  # url to which cancel request post
-        headers = self.headers
-        headers.update({"token": self.token, "Content-Type": "application/x-www-form-urlencoded"})  # request headers
+    #     url = self.host + "/user/cancel"  # url to which cancel request post
+    #     headers = self.headers
+    #     headers.update({"token": self.token, "Content-Type": "application/x-www-form-urlencoded"})  # request headers
 
-        s = requests.post(url, params, headers=headers)  # response information
-        return s
+    #     s = requests.post(url, params, headers=headers)  # response information
+    #     return s
 
     def bookBadminton(self, p):  # try to book a Badminton court
         today = '{:%Y-%m-%d}'.format(dt.datetime.now())  # the date today
         # request params including the id and the time you want to book
         params = {"periodId": p[0], "date": today, "stadiumId": p[1]}
         params = json.dumps(params)
-
         log(params)
-
         url = self.host + "/user/book"  # url to which book request post
-
         # time and signature time when request sends
         timestamp, timestampSignature = ConfigureTime(self.time).getTimeVerify()
         headers = self.headers
         headers.update({"token": self.token, "Resultjson": timestamp, "Content-Type": "application/json",
                         "Resultjsonsignature": timestampSignature})  # request headers
-
-        # print("数据提交时间：", dt.datetime.now())  # print the time when the request sends
         s = requests.post(url, params, headers=headers)  # response information including the result of booking
         return s.json()
 
@@ -66,8 +80,8 @@ class Features:
         # limit param means only return the latest booking info
         nickname = "login"
         infoSum = None
-        params = {"containCanceled": "false", "desc": "true", "limit": "1", "offset": "0"}
-        params = json.dumps(params)
+        data = {"containCanceled": "false", "desc": "true", "limit": "1", "offset": "0"}
+        data = json.dumps(data)
         url = self.host + "/user/getPriLogs"  # url to which query request post
 
         headers = self.headers
@@ -75,14 +89,10 @@ class Features:
         headers.update({"token": self.token, "Content-Type": "application/json"})
 
         try:
-            s = requests.post(url, params, headers=headers).json()
+            s = requests.post(url, data, headers=headers).json()
         except Exception:
-            pass
             s = None
         else:
-            # print(s)
-
-            # resolve the serial number of the court from the response info
             try:
                 myData = s['data']
             except KeyError:
@@ -99,7 +109,6 @@ class Features:
         _, _, _, t_delay = self.time  # get delay microseconds
         ct = ConfigureTime(self.time)
         ct.countTo2()  # countdown to last 2 min
-        params = [self.periodIdList[params[0]], self.stadiumIdList[params[1]]]
 
         flag = True
         # countdown to the timing time
@@ -108,8 +117,6 @@ class Features:
             # print(getLocalInterval(rt, de))
             if ct.getLocalInterval() <= 3:
                 while flag:
-                    # time.sleep(0.003)
-                    # print(getLocalInterval(ringTime, de))
                     if ct.getLocalInterval() <= t_delay:
                         postTime = time.time()
                         # print("数据发送时间：", time.time()+ct.delay)
@@ -124,26 +131,13 @@ class Features:
 
         if not info['success']:
             ret1 = info['errMsg']
-            ret2 = "False"
+            ret2 = ""
         else:
             ntpTime, _ = ct.getNtpTime()
             relTime = ntpTime.tx_time + ntpTime.delay / 2 - (time.time() - postTime)
             ret1 = "提交时间:\n" + ct.styledTime(relTime, False) + '\n' + resolveInfo(info)
         return ret1, ret2
-
-    def getToken(self):
-        params = {
-            # "code": "033iBAml27M8g94VYDll2B9KQW2iBAmL"
-        }
-        params = urlencode(params)
-        url = self.host + "/auth/?code=073Aij000Ot2VN1ZN2000CbmYt1Aij0x"
-
-        headers = self.headers
-        headers.update({"Content-Type": "application/x-www-form-urlencoded"})
-
-        s = requests.post(url, data=params, headers=headers)
-        print(s.json())
-
+    
 
 class ConfigureTime:
     def __init__(self, mytime):  # init the delay with 0 and the timing time
@@ -221,7 +215,12 @@ class ConfigureTime:
 
         TS_hms = str(round(self.timingTime - 1))
         TS_ms = round(1000 - t_ms*1000)
-        TS = TS_hms + str(TS_ms) if TS_ms >= 100 else TS_hms + '0' + str(TS_ms)
+        if TS_ms < 10:
+            TS = TS_hms + "00" + str(TS_ms)
+        elif TS_ms < 100:
+            TS = TS_hms + '0' + str(TS_ms)
+        else:
+            TS = TS_hms + str(TS_ms)
         TSS = cryptor.encrypt(TS).decode()
         return TS, TSS
 
