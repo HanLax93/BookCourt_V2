@@ -16,7 +16,7 @@ def resolveInfo(params):
 
 
 class Features:
-    def __init__(self, myToken, config=None):  # init with host and token
+    def __init__(self, myToken, config=None, nickname=""):  # init with host and token
         queryList = {
             "stadiumList":{
                 "Badminton Court 1": "5",
@@ -47,6 +47,8 @@ class Features:
         self.host = "https://tyb.qingyou.ren"
         if config is not None:
             self.time = config
+        if nickname != "":
+            self.nickname = nickname
 
     # def cancelCourt(self):  # you can try to cancel the booking with this function
     #     data, _, _ = self.getPriLogs()
@@ -66,7 +68,7 @@ class Features:
         # request params including the id and the time you want to book
         params = {"periodId": p[0], "date": today, "stadiumId": p[1]}
         params = json.dumps(params)
-        log(params)
+        log(self.nickname + " " + params)
         url = self.host + "/user/book"  # url to which book request post
         # time and signature time when request sends
         timestamp, timestampSignature = ConfigureTime(self.time).getTimeVerify()
@@ -156,16 +158,39 @@ class ConfigureTime:
         self.getTimeDelay()
 
     def getTimeDelay(self):  # get delay between local time and server time
-        timeDelay = 0
-
-        # take the average of ten items as delay
-        for i in range(10):
-            ntpClient = ntplib.NTPClient()
-            times = ntpClient.request("edu.ntp.org.cn", version=2)  # get the server time from the china education web
-
-            timeDelay += times.tx_time + times.delay / 2 - time.time()
-
-        self.delay = timeDelay / 10
+        with open("config/config.json", 'r') as f:
+            config = json.load(f)["config"]
+            try:
+                timedelay = config[4]
+            except Exception:
+                tstamp = 0
+            else:
+                tstamp = int(timedelay[0:10])
+                tdelay = float(timedelay[10:])
+            f.close()
+        if round(time.time())-tstamp >= 1200:
+            timeDelay = []
+            flag = True
+            # take the average of ten items as delay
+            while flag:
+                if len(timeDelay) < 10:
+                    ntpClient = ntplib.NTPClient()
+                    try:
+                        times = ntpClient.request("edu.ntp.org.cn", version=2)  # get the server time from the china education web                
+                    except Exception:
+                        pass
+                    else:
+                        timeDelay += [times.tx_time + times.delay / 2 - time.time()]
+                else:
+                    flag = False
+            self.delay = sum(timeDelay) / 10
+            timedelay = str(round(time.time())) + str(self.delay)
+            with open("config/config.json", 'w') as f:
+                config.append(timedelay)
+                json.dump({"config": config}, f)
+                f.close()
+        else:
+            self.delay = tdelay
         return self.delay
 
     def getInterval(self):  # get time interval between server time and timing time

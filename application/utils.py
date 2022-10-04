@@ -7,8 +7,8 @@ from cryptography.hazmat.primitives.ciphers import algorithms
 
 
 def get_input(ui):
-    ret = ui.placeholderText() if len(ui.text()) == 0 else \
-        ui.text()
+    ret = ui.text() if len(ui.text()) != 0 else \
+        ui.placeholderText()
     return ret
 
 
@@ -19,7 +19,7 @@ def log(logmsg: str):
         os.mkdir("logs")
     with open(filename, 'a') as f:
         logtime = datetime.datetime.strftime(datetime.datetime.now(), '%Y-%m-%d %H:%M:%S',)
-        f.write(logtime + ' ' + logmsg + '\n\n')
+        f.write(logtime + " (local time):    " + logmsg + '\n\n')
         f.close()
 
 
