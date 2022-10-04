@@ -26,6 +26,7 @@ class App:
         self.config = config
         self.info = ""
         self.info2 = ""
+        self.nickname = config[5]
         h = int(self.config[3][0])
         m = int(self.config[3][1])
         s = int(self.config[3][2])
@@ -47,19 +48,17 @@ class App:
             weekend = ["Saturday", "Sunday"]
             if dt.datetime.now().strftime("%A") in weekend:
                 periodList[0] = "15:00 - 16:00"
-            token = self.config[0]
             court = self.queryList["stadiumList"][stadiumList[self.config[1]]]
             courtTime = self.queryList["periodList"][periodList[self.config[2]]]
             bookInfo = [courtTime, court]
 
-            t = self.config[4]
-            testTime = modules.ConfigureTime(t)
+            testTime = modules.ConfigureTime(self.config[4])
             testTime.getTimeDelay()
             if testTime.getLocalInterval() < 0:
                 self.info = "时间设置错误"
                 self.info2 = ""
             else:
-                f = modules.Features(token, t)
+                f = modules.Features(self.config[0], self.config[4], self.config[5])
                 self.info, self.info2 = f.bookCourt(bookInfo)
-        utils.log(self.info + '\n' + self.info2)
+        utils.log(self.nickname + " " + self.info + " " + self.info2)
         return self.info, self.info2
