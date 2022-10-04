@@ -17,6 +17,9 @@ class Ui_dialog(object):
         dialog.setObjectName("dialog")
         dialog.resize(609, 330)
         dialog.setStyleSheet("background-color: rgb(255, 255, 255);")
+        icon = QtGui.QIcon()
+        icon.addPixmap(QtGui.QPixmap(":/src/icon.png"), QtGui.QIcon.Normal, QtGui.QIcon.On)
+        dialog.setWindowIcon(icon)
         self.btn_login = QtWidgets.QPushButton(dialog)
         self.btn_login.setGeometry(QtCore.QRect(210, 220, 101, 41))
         self.btn_login.setStyleSheet("background-color: qlineargradient(spread:pad, x1:0.52, y1:1, x2:0.54, y2:0, stop:0.0112994 rgba(64, 145, 252, 255), stop:1 rgba(255, 255, 255, 255));\n"
