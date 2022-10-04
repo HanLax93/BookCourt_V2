@@ -92,6 +92,10 @@ class Func(QMainWindow):
         # TODO: write code here
         self.ui.label_9.setText("loading...")
         config = self.configParams()
+        saveConfig = config[0:4]
+        with open("./config/config.json", 'w') as f:
+            json.dump({"config": saveConfig}, f)
+            f.close()
         if self.thread is not None:
             self.thread.quit()
             if self.thread.isRunning():
@@ -99,10 +103,6 @@ class Func(QMainWindow):
         self.thread = RunThread(config)
         self.thread.signal.connect(self.callbacklog)
         self.thread.start()
-        config = config[0:4]
-        with open("./config/config.json", 'w') as f:
-            json.dump({"config": config}, f)
-            f.close()
 
     def configParams(self):
         t_hour = get_input(self.ui.lineEdit_newname_2)
