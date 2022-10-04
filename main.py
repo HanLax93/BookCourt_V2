@@ -78,7 +78,6 @@ class Func(QMainWindow):
                 "20:00 - 21:00": "6"
             }
         }
-        self.nickname = "login"
         self.thread = None
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self)
@@ -93,6 +92,10 @@ class Func(QMainWindow):
         # TODO: write code here
         self.ui.label_9.setText("loading...")
         config = self.configParams()
+        if self.thread is not None:
+            self.thread.quit()
+            if self.thread.isRunning():
+                self.thread.terminate()
         self.thread = RunThread(config)
         self.thread.signal.connect(self.callbacklog)
         self.thread.start()
@@ -110,7 +113,7 @@ class Func(QMainWindow):
         court = self.ui.comboBox_2.currentIndex()
         courtTime = self.ui.comboBox.currentIndex()
         t = [int(timing[0]), int(timing[1]), int(timing[2]), 1 - int(timing[3]) / 1000]
-        config = [self.token, court, courtTime, timing, t]
+        config = [self.token, court, courtTime, timing, t, self.nickname]
         return config
 
     def callbacklog(self, msg):
@@ -122,14 +125,15 @@ if __name__ == "__main__":
     login_ui = Login()
     if login_ui.exec_() == QDialog.Accepted:
         main_window = Func()
-        config = [login_ui.token, login_ui.topCourt, login_ui.topCourtTime, login_ui.timing]
+        config = [login_ui.token, login_ui.topCourt, login_ui.topCourtTime, login_ui.timing, login_ui.nickname]
         main_window.token = config[0]
+        main_window.nickname = config[4]
         main_window.ui.comboBox_2.setCurrentIndex(config[1])
         main_window.ui.comboBox.setCurrentIndex(config[2])
         main_window.ui.lineEdit_newname_2.setPlaceholderText(config[3][0])
         main_window.ui.lineEdit_newname.setPlaceholderText(config[3][1])
         main_window.ui.lineEdit_newname_3.setPlaceholderText(config[3][2])
         main_window.ui.lineEdit_newname_4.setPlaceholderText(config[3][3])
-        main_window.setWindowTitle(login_ui.nickname)
+        main_window.setWindowTitle(config[4])
         main_window.show()
         sys.exit(window_application.exec())
