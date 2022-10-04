@@ -4,3 +4,6 @@ application/__pycache__
 ui/__pycache__
 .vscode
 logs
+dist
+main.spec
+build
